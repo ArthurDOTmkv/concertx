@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use DateTime;
 use App\Commande;
 use App\Concert;
+use App\Representation;
 use Illuminate\Support\Facades\Session;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
@@ -26,7 +27,7 @@ class PaiementController extends Controller
         {
             return redirect()->route('concerts.index');
         }
-        Stripe::setApiKey('sk_test_51IbU2DFyQMpZqbpyg7owK5RggOzsKuLK4ixxyD1pz1BpajU26hz5PQtbN5oiUKjiuPVmipDDcxh0X38AdyJOf7tz000JxPbITq');
+        Stripe::setApiKey('sk_test_51JmKdCLTn5oPDsLLtD3Ki0T4Ntk0cwWsUz0vZWvl3RKXxISGbTkQDSB0yUkgjz6Prjg28LOUtKAWyIJ7BuMtlvS600eIRdtdiJ');
         
         $intent = PaymentIntent::create([
             'amount' => round(Cart::total()),

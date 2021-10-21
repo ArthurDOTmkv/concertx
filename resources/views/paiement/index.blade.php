@@ -33,7 +33,7 @@
 
 @section('js')
     <script>
-        var stripe = Stripe('pk_test_51IbU2DFyQMpZqbpyblriff2lgqkKyVeKFRmQVSFCyFXfxILaItMTgD5LYxlgUWsE4BS0oeWpfqSFBllIv0Qb52TH00FRMZnIEb');
+        var stripe = Stripe('pk_test_51JmKdCLTn5oPDsLLITGzvNwPHeUIrT6nzyaXKtj87rZ5PyLChtbWs924vGgxv5dT11MP2aEtFzexNT9yqoJaNpuL00HGcyfq8c');
         var elements = stripe.elements();
           
         var style = {
