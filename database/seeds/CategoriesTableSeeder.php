@@ -18,8 +18,8 @@ class CategoriesTableSeeder extends Seeder
         ]);
         
         Categorie::create([
-            'nom' => 'Chanson',
-            'slug' => 'chanson'
+            'nom' => 'Nightclub',
+            'slug' => 'nightclub'
         ]);
         
         Categorie::create([
@@ -28,8 +28,8 @@ class CategoriesTableSeeder extends Seeder
         ]);
         
         Categorie::create([
-            'nom' => 'Cirque',
-            'slug' => 'cirque'
+            'nom' => 'Comédie',
+            'slug' => 'comedie'
         ]);
         
         Categorie::create([

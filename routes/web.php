@@ -23,6 +23,8 @@ Route::get('/', 'ConcertController@index')->name('concerts.index');
 Route::get('/concerts', 'ConcertController@index')->name('concerts.index');
 Route::get('/concerts/{slug}', 'ConcertController@show')->name('concerts.show');
 Route::get('/search', 'ConcertController@search')->name('concerts.search');
+Route::get('/representations/{id}', 'RepresentationController@index')->name('representations.index');
+Route::post('/reservation', 'ReservationController@index');
 
 /*  
  * Routes pour le panier

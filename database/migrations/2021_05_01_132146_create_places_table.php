@@ -15,20 +15,20 @@ class CreatePlacesTable extends Migration
     {
         Schema::create('places', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('colonne');
             $table->char('rangee');
-            $table->unsignedBigInteger('zone_id');
+            $table->integer('colonne');
+            // $table->unsignedBigInteger('zone_id');
             $table->timestamps();
         });
         
          //Clés étrangères
-        Schema::table('places', function (Blueprint $table)
-        {
-            $table->foreign('zone_id')
-                ->references('id')
-                ->on('zones')
-                ->onDelete('cascade');
-        });
+        // Schema::table('places', function (Blueprint $table)
+        // {
+        //     $table->foreign('zone_id')
+        //         ->references('id')
+        //         ->on('zones')
+        //         ->onDelete('cascade');
+        // });
     }
 
     /**

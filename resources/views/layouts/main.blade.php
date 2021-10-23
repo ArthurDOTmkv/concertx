@@ -38,6 +38,33 @@
     border-color: #e0e0e0;
 }
 
+  .screen{
+    background: white;
+    height: 100px;
+    width:100%;
+    transform: rotateX(-45deg);
+    margin: 15px 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.7);
+  }
+
+  .place{
+    width:40px;
+    height:40px;
+    border: 1px solid #1a1a1a;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    background: #8c8c8c;
+  }
+
+  .place.disabled{
+    background: #b53828;
+  }
+
+  .place.selected{
+    background: #71a62b;
+  }
+
+
   .bd-placeholder-img {
     font-size: 1.125rem;
     text-anchor: middle;

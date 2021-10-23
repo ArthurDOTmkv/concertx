@@ -17,9 +17,7 @@ class CreateConcertsTable extends Migration
             $table->bigIncrements('id');
             $table->string('titre')->unique();
             $table->string('slug')->unique();
-            $table->string('soustitre');
             $table->text('description');
-            $table->integer('prix');
             $table->string('image');
             $table->timestamps();
         });

@@ -15,9 +15,6 @@
                       @endforeach
                 </strong>
                 <h5 class="mb-3">{{$concert->titre}}</h5>
-                <!-- <div class="mb-1 text-muted">{{$concert->created_at->format('d/m/Y')}}</div> -->
-                <div class="mb-1 text-muted"><b>Prix</b> : {{$concert->getPrix()}}</div>
-                <!-- <p class="card-img mb-auto">{{$concert->soustitre}}</p> -->
                 <div class="text-left pt-3">
                   <a href="{{route('concerts.show', $concert->slug)}}" class="btn btn-light rounded-0" style="margin-bottom: 10px;">Continuer vers le concert</a>
                 </div>

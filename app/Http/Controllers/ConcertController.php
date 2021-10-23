@@ -18,7 +18,7 @@ class ConcertController extends Controller
                 $query->where('slug', request()->categorie);
             })->orderBy('created_at', 'DESC')->paginate(4);
         } else {
-            $concerts = Concert::with('categories')->orderBy('created_at', 'DESC')->paginate(6);
+            $concerts = Concert::with('categories')->orderBy('id', 'DESC')->paginate(6);
         }
         //dd($concerts);
         return view('concerts.index')->with('concerts', $concerts);
@@ -27,12 +27,9 @@ class ConcertController extends Controller
     public function show($slug)
     {
         $concert = Concert::where('slug', $slug)->firstOrFail();     //Si mauvais slug, renvoi 404 au lieu d'afficher une erreur
-        $shows =  Representation::where('concert_id',$concert->id)->get();        
-        dump($shows);  
-        $places = $concert->places === 0 ? 'Indisponible' : 'Disponible';   //Si plus de places, renvoi 'Ind', sinon 'Disp'
+        $shows =  Representation::where('concert_id',$concert->id)->where('moment', '>=', date('Y-m-d') )->orderBy('moment', 'ASC')->get();
         return view('concerts.show', [
             'concert' => $concert,
-            'places' => $places,
             'shows' => $shows
         ]);
     }

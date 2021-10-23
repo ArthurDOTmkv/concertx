@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class RepresentationPlace extends Model
 {
-    public function places()
+    public function place()
     {
         return $this->belongsTo('App\Place');
     }
     
-    public function representaions()
+    public function representation()
     {
-        $this->belongsToMany('App\Representation');
+        return $this->belongsTo('App\Representation');
     }
 }

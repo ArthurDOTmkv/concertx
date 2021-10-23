@@ -18,6 +18,7 @@ class CreateRepresentationsTable extends Migration
             $table->unsignedBigInteger('concert_id');
             $table->dateTime('moment');
             $table->timestamps();
+            $table->integer('prix');
         });
         
         //Clé étrangère
