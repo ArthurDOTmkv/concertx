@@ -14,7 +14,7 @@
                         </div>
                     @endif
                     <!-- Afficher toutes les commandes de l'utilistaeur connecté-->
-                    @foreach(Auth()->user()->commandes as $commande)
+                    <!-- @foreach(Auth()->user()->commandes as $commande)
                     <div class="card">
                         <div class="card-header">
                             Commande du {{Carbon\Carbon::parse($commande->paymentCreatedAt)->format('d/m/Y')}} <strong>({{getPrix($commande->montant)}} TVA inclus)</strong>
@@ -29,7 +29,7 @@
                             @endforeach
                         </div>
                     </div></br>
-                    @endforeach
+                    @endforeach -->
                 </div>
             </div>
         </div>

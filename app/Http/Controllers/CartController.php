@@ -1,126 +1,138 @@
 <?php
 
+ 
 namespace App\Http\Controllers;
-
-use App\Concert;
-use Gloudemans\Shoppingcart\Facades\Cart;
+  
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
-
+use App\User;
+use App\Place;
+use App\Representation;
+use App\Cart;
+use App\Concert;
+  
 class CartController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Write code on Method
      *
-     * @return \Illuminate\Http\Response
+     * @return response()
      */
     public function index()
     {
+        $userId = auth()->user()->id;
+        $cart = Cart::where('user_id','=',$userId)->get();
+        $total = Cart::where('user_id','=',$userId)->sum('prix');
+        return view('cart.index', [
+            'cart' => $cart,
+            'total' => $total
+        ]);
+    }
+
+    public function total()
+    {      
+        $userId = auth()->user()->id;  
+       return Cart::where('user_id','=',$userId)->sum('prix');
+    }
+
+    
+  
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function cart()
+    {
+        // return view('products.cart');
+    }
+
+    // compte le total d'articles
+    public static function count()
+    {
+        try {
+            $userId = auth()->user()->id;
+            return Cart::where('user_id','=',$userId)->get()->count();
+        } catch (\Throwable $th) {
+            return 0;
+        }
+    }
+
+    // retourne le titre du concert en lien avec le produit du panier
+    public static function title($representationId)
+    {
+        $representation = Representation::find($representationId);
+        $concert = Concert::find($representation->concert_id);
+        return ($concert->titre);
+    }
+
+    // retourne le nom de la place d'un element du panier
+    public static function place($placeId)
+    {
+        $alphas = range('A', 'Z');
+        $place = Place::find($placeId);
+        return $alphas[$place->rangee] .'-'. $place->colonne;
+    }
+
+    // retourne l'image du concert pour un element du panier
+    public static function image($representationId)
+    {
+        $representation = Representation::find($representationId);
+        $concert = Concert::find($representation->concert_id);
+        return ($concert->image);
+    }
+
+  
+  
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function addToCart(Request $request)
+    {
+        // recupere le cart session
+        // $cart = session()->get('cart', []);
+
+        // recupere les entites du frontend
+        $user = User::find($request->input('user'));
+        $representation = Representation::find($request->input('representation'));
+        $places = $request->input('places');
+        $arr = collect();
+        foreach($places as $row){
+            $pla = Place::where('rangee','=', $row['x'])->where('colonne', '=', $row['y'])->firstOrFail();
+            Cart::create([
+                "user_id" => $user->id,
+                "place_id" => $pla->id,
+                "representation_id" => $representation->id,
+                "prix" => $representation->prix
+            ]);
+        }        
+
+        // return redirect()->back()->with('success', 'Product added to cart successfully!');
         return view('cart.index');
     }
-
+  
     /**
-     * Show the form for creating a new resource.
+     * Write code on Method
      *
-     * @return \Illuminate\Http\Response
+     * @return response()
      */
-    public function create()
+    public function update(Request $request)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {      
-        //Eviter les doublons
-        $doublon = Cart::search(function($cartItem, $rowId) use ($request)
-        {
-            return $cartItem->id == $request->concert_id;
-        });
         
-        if($doublon->isNotEmpty())
-        {
-            return redirect()->route('concerts.index')->with('success', 'Les places ont déjà été ajoutées au panier');
+    }
+  
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function remove(Request $request)
+    {
+        if($request->id) {
+            Cart::destroy($request->id);
         }
-        
-        //Ne passer que l'id en paramètre pour éviter de modifier les données à travers le front (prix, quantité, etc)
-        $concert = Concert::find($request->concert_id);
-        
-        Cart::add($concert->id, $concert->titre, 1, $concert->prix)->associate('App\Concert');
-        
-        return redirect()->route('concerts.index')->with('success', 'Les places ont été ajoutées au panier');
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $rowId)
-    {
-        $data = $request->json()->all();
-        
-        $validater = Validator::make($request->all(), [
-            'qty' => 'required|numeric|between:1,10',
-        ]);
-        if($validater->fails())
-        {
-            Session::flash('danger', 'ERROR');
-            return response()->json(['error' => 'ERROR']);
-        }
-        
-        if($data['qty'] > $data['places']){
-            Session::flash('danger', 'Le nombre de places demandé est trop élevé. Places restantes : '. $data['places']);
-            return response()->json(['error' => 'ERROR']);
-        }
-        
-        Cart::update($rowId, $data['qty']);
-        
-        Session::flash('success', 'Le nombre de tickets est passé à ' . $data['qty']);
-        
-        return response()->json(['success' => 'La quantité a été mise à jour']);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($rowId)
-    {
-        Cart::remove($rowId);
-        
-        return back()->with('success', 'Votre place a bien été retirée');
+        return \Redirect::route('cart');
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -23,17 +25,7 @@ Route::get('/', 'ConcertController@index')->name('concerts.index');
 Route::get('/concerts', 'ConcertController@index')->name('concerts.index');
 Route::get('/concerts/{slug}', 'ConcertController@show')->name('concerts.show');
 Route::get('/search', 'ConcertController@search')->name('concerts.search');
-Route::get('/representations/{id}', 'RepresentationController@index')->name('representations.index');
 Route::post('/reservation', 'ReservationController@index');
-
-/*  
- * Routes pour le panier
- * rowId est l'id dans le panier propre à la librairie LaravelShoppingCart, pas l'ID de la DB
- */
-Route::get('/panier', 'CartController@index')->name('cart.index');
-Route::post('/panier/ajouter', 'CartController@store')->name('cart.store');
-Route::patch('/panier/{rowId}', 'CartController@update')->name('cart.update');
-Route::delete('/panier/{rowId}', 'CartController@destroy')->name('cart.destroy');
 
 /*
  * Routes pour paiement
@@ -41,8 +33,12 @@ Route::delete('/panier/{rowId}', 'CartController@destroy')->name('cart.destroy')
  */
 Route::group(['middleware' => ['auth']], function(){
     Route::get('/paiement', 'PaiementController@index')->name('paiement.index');
-    Route::get('/paiementreussi', 'PaiementController@paiementreussi')->name('paiement.paiementreussi');
-    Route::post('/paiement', 'PaiementController@store')->name('paiement.store');
+    Route::get('/paiementstore', 'PaiementController@store')->name('paiement.store');
+    Route::get('/paiementreussi', 'PaiementController@paiementreussi')->name('paiement.reussi');
+    Route::get('/representations/{id}', 'RepresentationController@index')->name('representations.index');
+    Route::get('/cart', 'CartController@index')->name('cart');
+    Route::post('/add-to-cart', 'CartController@addToCart')->name('add.to.cart');
+    Route::delete('/remove-from-cart', 'CartController@remove')->name('remove.from.cart');
 });
 
 /*

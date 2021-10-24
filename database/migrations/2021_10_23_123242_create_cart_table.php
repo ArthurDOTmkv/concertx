@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRepresentationPlacesTable extends Migration
+class CreateCartTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,24 +13,32 @@ class CreateRepresentationPlacesTable extends Migration
      */
     public function up()
     {
-        Schema::create('representation_places', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('carts', function (Blueprint $table) {
+            $table->bigIncrements('id'); 
+            $table->unsignedBigInteger('user_id');     
             $table->unsignedBigInteger('place_id');
             $table->unsignedBigInteger('representation_id');
-            $table->timestamps();
+            $table->integer('prix');
+            $table->string('paymentIntentId')->unique()->nullable();   
+            $table->dateTime('paymentCreatedAt')->nullable();
+            $table->timestamps();  
         });
-        
-         //Clés étrangères
-        Schema::table('representation_places', function (Blueprint $table)
+
+        Schema::table('carts', function (Blueprint $table)
         {
-            $table->foreign('place_id')
+            $table->foreign('user_id')
                 ->references('id')
-                ->on('places')
+                ->on('users')
                 ->onDelete('cascade');
             
             $table->foreign('representation_id')
                 ->references('id')
                 ->on('representations')
+                ->onDelete('cascade');
+
+            $table->foreign('place_id')
+                ->references('id')
+                ->on('places')
                 ->onDelete('cascade');
         });
     }
@@ -42,6 +50,6 @@ class CreateRepresentationPlacesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('representation_places');
+        Schema::dropIfExists('cart');
     }
 }

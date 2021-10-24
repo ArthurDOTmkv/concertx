@@ -29,20 +29,26 @@
         };
 
         function envoyer(){
-            console.log(JSON.stringify(selectedSeats));
-            fetch('/reservation',{
+            fetch('/add-to-cart',{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                body: JSON.stringify(selectedSeats)
+                body: JSON.stringify({
+                    places: selectedSeats,
+                    user:  {{auth()->user()->id}},
+                    representation: Number({{ Request::route('id') }})
+                })
             })
-            .then(response => response.json())
-            .then(data => console.log(data))
+            .then(res => {
+                console.log(res);
+                window.location.href = "/";
+            })
             .catch((error) => {
-                console.error('Error:', error);
+                console.log(error);
             });
+
         };
     </script>
 

@@ -23,5 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SettingsTableSeeder::class);
         $this->call(PlacesTableSeeder::class);
         $this->call(RepresentationsTableSeeder::class);
+        $this->call(UserSeeder::class);
+        $this->call(CartTableSeeder::class);
     }
 }

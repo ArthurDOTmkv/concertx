@@ -1,7 +1,25 @@
+<?php 
+
+    $total = app('App\Http\Controllers\CartController')->total();
+
+    // Set your secret key. Remember to switch to your live secret key in production.
+    // See your keys here: https://dashboard.stripe.com/apikeys
+    \Stripe\Stripe::setApiKey('sk_test_51Jo9fRE6w3D7gm97czerxSdjOeFI9DjI96q6bhnqO8GY3hvXybBxb2y93vxfsIADTqP73RFKxoKw1XVYRgGruXTv00KO6FWn0m');
+
+    $paymentIntent = \Stripe\PaymentIntent::create([
+        'amount' => $total*100,
+        'currency' => 'eur',
+        'payment_method_types' => ['card'],
+        'receipt_email' => 'Arthur.a379@gmail.com',
+    ]);
+
+    $clientSecret = $paymentIntent->client_secret;
+
+?>
+
 @extends('layouts.main')
 
 @section('script')
-    <!-- Inclus la détection de fraude -->
     <script src="https://js.stripe.com/v3/"></script>
 @endsection
 
@@ -11,19 +29,37 @@
 @endsection
 
 @section('content')
-    <div class="col-md-12">
+    <div class="col-md-12 mb-5">
         <h1>Page de paiement</h1>
         <div class="row">
-            <div class="col-md-6">
-                <form id="paiement-form" class="my-2" action="{{route('paiement.store')}}" methode="POST">
+            <div class="col-6">
+                <form id="paiement-form" class="my-2" action="{{route('paiement.store')}}" methode="POST">                    
                     @csrf
-                    <div id="card-element">
-                        <!-- Elements will create Input elements here-->
+                    <div class="row">
+                        <div class="mb-3 col-9">
+                            <label class="form-label">Rue</label>
+                            <input type="text" class="form-control" name="rue" required>
+                        </div>
+                        <div class="mb-3 col-3">
+                            <label class="form-label">Numero</label>
+                            <input type="text" class="form-control" name="numero" required>
+                        </div>
+                        <div class="mb-3 col-3">
+                            <label class="form-label">Code postal</label>
+                            <input type="text" class="form-control" name="email" required>
+                        </div>
+                        <div class="mb-3 col-9">
+                            <label class="form-label">Ville</label>
+                            <input type="text" class="form-control" name="ville" required>
+                        </div>
+                        <div id="card-element">
+                            <!-- Elements will create Input elements here-->
+                        </div>
+                        <div id="card-errors" role="alert">
+                            <!-- We'll put the error messages in this element-->
+                        </div>
                     </div>
-                    <div id="card-errors" role="alert">
-                        <!-- We'll put the error messages in this element-->
-                    </div>
-                    <button id='submit' class="btn btn-secondary mt-6 mt-4">Payer {{getPrix(Cart::total())}}</button>
+                    <button id='submit' class="btn btn-secondary mt-6 mt-4">Payer {{$total}} €</button>
                 </form>
             </div>
         </div>
@@ -33,30 +69,18 @@
 
 @section('js')
     <script>
-        var stripe = Stripe('pk_test_51IbU2DFyQMpZqbpyblriff2lgqkKyVeKFRmQVSFCyFXfxILaItMTgD5LYxlgUWsE4BS0oeWpfqSFBllIv0Qb52TH00FRMZnIEb');
-        var elements = stripe.elements();
-          
-        var style = {
-            base: {
-              color: "#32325d",
-              fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-              fontSmoothing: "antialiased",
-              fontSize: "16px",
-              "::placeholder": {
-                color: "#aab7c4"
-              }
-            },
-            invalid: {
-              color: "#fa755a",
-              iconColor: "#fa755a"
-            }
-        };
-    
-        var card = elements.create("card", { style: style });
-        card.mount("#card-element");
+        // configuration stripe: https://stripe.com/docs/
+        var stripe = Stripe('pk_test_51Jo9fRE6w3D7gm97bDe397flADO4KVbI52LtPj1k7Kn8oj7mdcuNyohX1ts74h9jNp4ZO40bWVUnR77WnWL4hWC300NKBizW5l');
         
+        var elements = stripe.elements({ clientSecret: '{{$clientSecret}}' });
+        var cardElement = elements.create('payment');
+        cardElement.mount("#card-element");
+
+        // soumission du formulaire
+        var form = document.getElementById('paiement-form');
+
         //Messages en cas de succes/erreur du n° de la carte
-        card.on('change', ({error}) => {
+        cardElement.on('change', ({error}) => {
         const displayError = document.getElementById('card-errors');
             if (error) {
               displayError.textContent = error.message;
@@ -64,66 +88,17 @@
               displayError.textContent = '';
             }
         });
-        // Soumission du formulaire
-        var form = document.getElementById('paiement-form');
 
-        form.addEventListener('submit', function(ev) {
+        form.addEventListener('submit', async (e)=> {
             //Empêche la soumission du formulaire (rechargement de la page)
-            ev.preventDefault();    
-            // submitButton.disabled = true;
-            stripe.confirmCardPayment("{{ $clientSecret }}", {
-            payment_method: {
-                card: card,
-                /*
-                billing_details: {
-                name: 'Jenny Rosen'
-                } 
-                */
-            }
-            }).then(function(result) {
-                if (result.error) {
-                    // Show error to your customer (e.g., insufficient funds)
-                    // submitButton.disabled() = false;
-                    console.log(result.error.message);
-                } else {
-                    // The payment has been processed!
-                    if (result.paymentIntent.status === 'succeeded') {
-                        var form = document.getElementById('paiement-form');
-                        var url = form.action;
-                        var paymentIntent = result.paymentIntent;
-                        var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                        
-                        fetch(
-                            url, 
-                            {
-                            headers : {
-                                "Content-Type": "application/json",
-                                "Accept": "application/json, text-plain; */*",
-                                "X-Requested-with": "XMLHttpRequest",
-                                "X-CSRF-TOKEN": token
-                            },
-                            method: 'post',
-                            body: JSON.stringify({
-                                paymentIntent: paymentIntent
-                            })
-                        }).then((data) => {
-                            console.log(data)
-                            if(data.status === 400)
-                            {
-                                var redirect = '/panier';
-                            } else
-                            {
-                                var redirect = '/paiementreussi';
-                            }
-                            //form.reset();
-                            window.location.href = redirect;
-                        }).catch((error) => {
-                            console.log(error)
-                        })
+            e.preventDefault();
 
-                    //console.log(result.paymentIntent);
+            // check paiement avec l'api stripe
+            const {error} = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: "{{route('paiement.store')}}",
                     }
-                }
             });
         });
     </script>

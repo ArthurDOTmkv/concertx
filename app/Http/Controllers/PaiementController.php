@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use DateTime;
 use App\Commande;
 use App\Concert;
+use App\Cart;
 use Illuminate\Support\Facades\Session;
-use Stripe\Stripe;
+use Illuminate\Support\Facades\Auth;
 use Stripe\PaymentIntent;
-use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PaiementController extends Controller
 {
@@ -22,24 +23,12 @@ class PaiementController extends Controller
     public function index()
     {
         //Redirection vers la page de concerts si tentative d'accéder à /paiement alors que le panier est vide
-        if(Cart::count() <= 0)
+        if(app('App\Http\Controllers\CartController')->count() <= 0)
         {
             return redirect()->route('concerts.index');
         }
-        Stripe::setApiKey('sk_test_51IbU2DFyQMpZqbpyg7owK5RggOzsKuLK4ixxyD1pz1BpajU26hz5PQtbN5oiUKjiuPVmipDDcxh0X38AdyJOf7tz000JxPbITq');
         
-        $intent = PaymentIntent::create([
-            'amount' => round(Cart::total()),
-            'currency' => 'eur',
-            //'payment_method_types' => ['card'],
-          ]);
-        
-        //Faire passer la clé secrète à une variable pour pouvoir l'utiliser dans le front
-        $clientSecret = Arr::get($intent, "client_secret");
-        
-        return view('paiement.index', [
-            "clientSecret" => $clientSecret
-        ]);
+        return view('paiement.index');
     }
 
     /**
@@ -60,43 +49,23 @@ class PaiementController extends Controller
      */
     public function store(Request $request)
     {
-        //Vérifier s'il y a des places dans le DB durant le paiement
-        if($this->noSeats())
-        {
-            Session::flash('danger', 'Le nombre de places demandé n\'est plus disponible');
-            return response()->json(['success' => false], 400);
+        $cart = Cart::where('user_id',Auth::id())->get();
+        $description = '[';
+        foreach($cart as $row){
+            $description = $description.'{representation: ' . $row->representation_id . ', place: "' . app('App\Http\Controllers\CartController')->place($row->place_id) . '"},';
+            DB::table('commandes_places')->insert([
+                'place_id' => $row->place_id,
+                'representation_id' => $row->representation_id
+            ]);
         }
-        //Récupération de l'objet de paiement dans la variable $data
-        $data = $request->json()->all();
-        //Stocker les données de paymentIntent dans le champ paymentIntentId de la Commande
-        $commande = new Commande();
-        $commande->paymentIntentId = $data['paymentIntent']['id'];
-        $commande->montant = $data['paymentIntent']['amount'];
-        $commande->paymentCreatedAt = (new DateTime())->setTimestamp($data['paymentIntent']['created'])->format('Y-m-d H:i:s');
-        $concerts = [];
-        $i = 0;
-        foreach(Cart::content() as $concert)
-        {
-            $concerts['concert_' . $i][] = $concert->model->titre;
-            $concerts['concert_' . $i][] = $concert->model->prix;
-            $concerts['concert_' . $i][] = $concert->qty;
-            $i++;
-            
-        }
-        $commande->concerts = serialize($concerts);
-        $commande->user_id = Auth()->user()->id;
-        $commande->save();
-        if($data['paymentIntent']['status'] === 'succeeded')
-        {
-            $this->majPlaces();
-            Cart::destroy();
-            Session::flash('success', 'Commande validée avec succès');
-            return response()->json(['success' => 'Enregistrement validé']);
-        }
-        else
-        {
-            return response()->json(['error' => 'Enregistrement échoué']);
-        }    
+        $description = $description.']';
+        $commande = Commande::create([
+            'user_id' => Auth::id(),
+            'total' => app('App\Http\Controllers\CartController')->total(),
+            'description' => $description
+        ]);
+        Cart::where('user_id',Auth::id())->delete();
+        return \Redirect::route('paiement.reussi');
     }
 
     /**
@@ -112,8 +81,9 @@ class PaiementController extends Controller
 
     public function paiementreussi()
     {
-        return Session::has('success') ? view('paiement.paiementreussi') : redirect()->route('concerts.index');
+        return view('paiement.reussi');
     }
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -148,33 +118,4 @@ class PaiementController extends Controller
         //
     }
     
-    private function majPlaces()
-    {
-        foreach(Cart::content() as $obj)
-        {
-            //Récupération du produit avec l'id du model
-            $concert = Concert::find($obj->model->id);       //Attribut propre au model et pas à la DB
-            //MAJ du produit en fonction de la quantité choisie
-            $concert->update(['places' => $concert->places - $obj->qty]);
-        }
-    }
-    
-    private function noSeats()
-    {
-        foreach(Cart::content() as $obj)
-        {
-            $concert = Concert::find($obj->model->id);
-            
-            /*
-             * Si les places entrées sont inférieures à la quantité demandée
-             * return false => sortir erreur
-             * Sinon, procéder au paiement
-             */
-            if($concert->places < $obj->qty)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 }

@@ -235,7 +235,7 @@ h1, h2, h3, h4, h5, h6 {
           </div>
           <div class="col-4 d-flex justify-content-end align-items-center">            
             @include('partials.auth')
-            <a class="link-secondary" href="{{route('cart.index')}}" style="text-decoration:none">Panier  <span class="badge rounded-pill bg-dark">{{Cart::count()}}</span></a>
+            <a class="link-secondary" href="{{route('cart')}}" style="text-decoration:none">Panier  <span class="badge rounded-pill bg-dark">@php echo App\Http\Controllers\CartController::count() @endphp</span></a>
           </div>
         </div>
       </header>
