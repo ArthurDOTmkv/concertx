@@ -43,9 +43,9 @@ class ConcertController extends Controller
         
         //Où le nom/description contient ce qu'on a entré en input
         $concert = Concert::where('titre', 'like', "%$search%")
-                ->orWhere('description', 'like', "%$search%")
+                // ->orWhere('description', 'like', "%$search%")
                 ->paginate(6);
         
-        return view('concerts.search')->with('concerts', $concert);
+        return view('concerts.index')->with('concerts', $concert);
     }
 }

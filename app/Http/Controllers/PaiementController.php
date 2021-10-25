@@ -50,15 +50,16 @@ class PaiementController extends Controller
     public function store(Request $request)
     {
         $cart = Cart::where('user_id',Auth::id())->get();
-        $description = '[';
+        $description = [];
         foreach($cart as $row){
-            $description = $description.'{representation: ' . $row->representation_id . ', place: "' . app('App\Http\Controllers\CartController')->place($row->place_id) . '"},';
+            array_push($description,$row);            
+            // inserer les places dans commandes_places
             DB::table('commandes_places')->insert([
                 'place_id' => $row->place_id,
                 'representation_id' => $row->representation_id
             ]);
         }
-        $description = $description.']';
+        $description = json_encode($description);
         $commande = Commande::create([
             'user_id' => Auth::id(),
             'total' => app('App\Http\Controllers\CartController')->total(),

@@ -4,7 +4,7 @@
 
     // Set your secret key. Remember to switch to your live secret key in production.
     // See your keys here: https://dashboard.stripe.com/apikeys
-    \Stripe\Stripe::setApiKey('sk_test_51Jo9fRE6w3D7gm97czerxSdjOeFI9DjI96q6bhnqO8GY3hvXybBxb2y93vxfsIADTqP73RFKxoKw1XVYRgGruXTv00KO6FWn0m');
+    \Stripe\Stripe::setApiKey('sk_test_51JmKdCLTn5oPDsLLtD3Ki0T4Ntk0cwWsUz0vZWvl3RKXxISGbTkQDSB0yUkgjz6Prjg28LOUtKAWyIJ7BuMtlvS600eIRdtdiJ');
 
     $paymentIntent = \Stripe\PaymentIntent::create([
         'amount' => $total*100,
@@ -70,7 +70,7 @@
 @section('js')
     <script>
         // configuration stripe: https://stripe.com/docs/
-        var stripe = Stripe('pk_test_51Jo9fRE6w3D7gm97bDe397flADO4KVbI52LtPj1k7Kn8oj7mdcuNyohX1ts74h9jNp4ZO40bWVUnR77WnWL4hWC300NKBizW5l');
+        var stripe = Stripe('pk_test_51JmKdCLTn5oPDsLLITGzvNwPHeUIrT6nzyaXKtj87rZ5PyLChtbWs924vGgxv5dT11MP2aEtFzexNT9yqoJaNpuL00HGcyfq8c');
         
         var elements = stripe.elements({ clientSecret: '{{$clientSecret}}' });
         var cardElement = elements.create('payment');

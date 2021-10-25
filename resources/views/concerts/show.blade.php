@@ -2,6 +2,14 @@
 
 @section('content')
 <h3 class="mb-4 ms-2">{{$concert->titre}}</h3>
+<div class="row pb-4">
+    <div class="col-3">
+        <img src="{{$concert->image}}" style="object-fit:cover;width:100%;"/>
+    </div>
+    <div class="col-9 ps-4">
+        {{$concert->description}}
+    </div>
+</div>
     @foreach($shows as $show)
         <div class="col-md-6">
             <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-300 position-relative">

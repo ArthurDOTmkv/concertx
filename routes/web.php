@@ -39,6 +39,7 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('/cart', 'CartController@index')->name('cart');
     Route::post('/add-to-cart', 'CartController@addToCart')->name('add.to.cart');
     Route::delete('/remove-from-cart', 'CartController@remove')->name('remove.from.cart');
+    Route::get('/cart/historique', 'CartController@historique')->name('cart.historique');
 });
 
 /*
@@ -50,4 +51,4 @@ Route::group(['prefix' => 'admin'], function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+// Route::get('/home', 'HomeController@index')->name('home');

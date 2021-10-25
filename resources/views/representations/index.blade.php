@@ -71,7 +71,7 @@
                     }
                 ?>
                     @if($dispo)
-                        <div class="col d-flex justify-content-center mb-2"><div class="place" onclick="toggle({{$x}},{{$y}}, this)">{{$x}},{{$y}}</div></div>
+                        <div class="col d-flex justify-content-center mb-2"><div class="place" onclick="toggle({{$x}},{{$y}}, this)"></div></div>
                     @else
                         <div class="col d-flex justify-content-center mb-2"><div class="place disabled"></div></div>
                     @endif

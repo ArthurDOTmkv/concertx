@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
   
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 use App\User;
 use App\Place;
 use App\Representation;
@@ -82,6 +83,13 @@ class CartController extends Controller
         return ($concert->image);
     }
 
+    
+    // formate le json dans l'historique des commandes
+    public static function getDescriptionData($description)
+    {
+        return  json_decode($description);
+    }
+
   
   
     /**
@@ -134,5 +142,14 @@ class CartController extends Controller
             Cart::destroy($request->id);
         }
         return \Redirect::route('cart');
+    }
+
+    public function historique(Request $request)
+    {
+        $userId = auth()->user()->id;
+        $historique = DB::table('commandes')->where('user_id',$userId)->get();
+        return view('cart.historique',[
+            'historique'=>$historique
+        ]);
     }
 }

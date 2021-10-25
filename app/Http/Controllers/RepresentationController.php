@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\DB;
 class RepresentationController extends Controller
 {
     //
-    public function index()
+    public function index($id)
     {
         $places = collect();
-        $results = DB::table('commandes_places')->where('representation_id',2)->get();
+        $results = DB::table('commandes_places')->where('representation_id',$id)->get();
         foreach($results as $result){
             $places->push(Place::where('id',$result->place_id)->firstOrFail());
         }
